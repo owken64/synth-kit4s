@@ -18,6 +18,8 @@ import scalafx.scene.control.Button
 import scalafx.Includes._
 
 object ScalaFXHelloWorld extends JFXApp3 {
+  var osc : Double => Double = Sine
+
   override def start(): Unit = {
     stage = new JFXApp3.PrimaryStage {
       //    initStyle(StageStyle.Unified)
@@ -27,6 +29,7 @@ object ScalaFXHelloWorld extends JFXApp3 {
         content = new HBox {
           padding = Insets(50, 80, 50, 80)
           children = Seq(
+/*
             new Text {
               text = "Synth-kit"
               style = "-fx-font: normal bold 100pt sans-serif"
@@ -47,11 +50,34 @@ object ScalaFXHelloWorld extends JFXApp3 {
                 spread = 0.25
               }
             },
+*/
+            new Button("Sine") {
+              onMouseClicked = handle {
+                osc  = Sine
+              }
+            },
+            new Button("Triangle") {
+              onMouseClicked = handle {
+                osc  = Triangle
+              }
+            },
+            new Button("Saw") {
+              onMouseClicked = handle {
+                osc  = Saw
+              }
+            },
+            new Button("Square") {
+              onMouseClicked = handle {
+                osc  = Square
+              }
+            },
             new Button("Ring tone") {
               onMouseClicked = handle {
                 // println("hello")
-                // ここをいじると鳴る音が変えられます
-                AudioOut.Bit16_44K.play(Sine ,440.0, 1.0).unsafeRunSync()
+                // 音を鳴らす
+                //AudioOut.Bit16_44K.play(osc ,440.0, 1.0).unsafeRunSync()
+                val wave = generateWave(16,44100, osc, 440.0, 1.0 )
+                AudioOut.Bit16_44K.playWave(wave)
               }
             }
           )

@@ -1,0 +1,1 @@
+def Gain(param: Double)(input: Double) : Double = param * input

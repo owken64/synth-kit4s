@@ -2,21 +2,28 @@
 class AudioOut(val bitDepth:Int,val sampleRate:Int) {
 
   import cats.effect.IO
+  import javax.sound.sampled._
+  import java.nio.ByteBuffer
+
   def play(wave_func: Double => Double, freq: Double, time: Double): IO[Unit] = IO.pure{
-    import javax.sound.sampled._
-    import java.nio.ByteBuffer
     val format = new AudioFormat(sampleRate.toFloat, bitDepth, 1, true, true)
     val line = AudioSystem.getSourceDataLine(format)
 
     line.open(format)
     line.start()
-    val buff = (0 until (sampleRate * time).toInt)
-      .map(time => wave_func(time2theta(sampleRate)(freq)(time.toDouble))) //振幅を計算し
-      .map(_ * Short.MaxValue)  //16Bitに変換し
-      .map(_.toShort)  //Short型にする
-      .toArray
-      .flatMap(ByteBuffer.allocate(2).putShort(_).array())
+    val buff = generateWave(bitDepth, sampleRate, wave_func, freq, time)
     line.write(buff,0,buff.length)
+  }
+
+  def playWave(wave: Array[Byte]) : IO[Unit] = {
+    IO.pure{
+    val format = new AudioFormat(sampleRate.toFloat, bitDepth, 1, true, true)
+    val line = AudioSystem.getSourceDataLine(format)
+
+    line.open(format)
+    line.start()
+    line.write(wave,0,wave.length)
+    }
   }
 }
 
